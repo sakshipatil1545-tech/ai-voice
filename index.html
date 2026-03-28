@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ArrcForce AI | Enterprise Voice Intelligence Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fb;
+            transition: background 0.3s ease, color 0.2s;
+        }
+        body.dark {
+            background: #0a0c15;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #eef2f6; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        body.dark ::-webkit-scrollbar-track { background: #1e293b; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(59, 130, 246, 0.12);
+            border-radius: 1.25rem;
+            transition: all 0.25s ease;
+        }
+        body.dark .glass-card {
+            background: rgba(17, 24, 39, 0.98);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(105deg, #3b82f6, #2563eb);
+            color: white;
+            font-weight: 600;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35); }
+        .btn-secondary {
+            background: transparent;
+            border: 1.5px solid #e2e8f0;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        body.dark .btn-secondary { border-color: #334155; color: #e2e8f0; }
+        .btn-secondary:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.05); }
+        .input-modern, .select-modern, .textarea-modern {
+            background: white;
+            border: 1.5px solid #e9eef3;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        body.dark .input-modern, body.dark .select-modern, body.dark .textarea-modern {
+            background: #1e293b;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+        .input-modern:focus, .select-modern:focus, .textarea-modern:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #5b6e8c;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        body.dark .sidebar-link { color: #9ca3af; }
+        .sidebar-link:hover { background: #f1f5f9; color: #2563eb; }
+        body.dark .sidebar-link:hover { background: #1e293b; color: #60a5fa; }
+        .sidebar-link.active { background: #eff6ff; color: #2563eb; }
+        body.dark .sidebar-link.active { background: #1e293b; color: #3b82f6; }
+        .badge-status { padding: 0.25rem 0.85rem; border-radius: 100px; font-size: 0.7rem; font-weight: 600; }
+        .badge-active { background: #d1fae5; color: #065f46; }
+        .badge-paused { background: #fed7aa; color: #9b2c1d; }
+        .badge-draft { background: #e2e8f0; color: #475569; }
+        .hidden-page { display: none; }
+        .active-page { display: block; animation: fadeSlide 0.35s ease-out; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 1.5s infinite; display: inline-block; margin-right: 8px; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 6px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+        .toast-notify { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 12px; z-index: 1000; animation: slideIn 0.3s ease; font-weight: 500; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .method-card { transition: all 0.2s; cursor: pointer; }
+        .method-card:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+        .step-indicator { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; }
+        .step { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #64748b; transition: all 0.3s; }
+        .step.active { background: #3b82f6; color: white; box-shadow: 0 0 0 4px rgba(59,130,246,0.3); }
+        .step.completed { background: #10b981; color: white; }
+        .form-step { display: none; animation: fadeIn 0.3s ease; }
+        .form-step.active-step { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .file-upload-area { border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        body.dark .file-upload-area { border-color: #475569; }
+        .file-upload-area:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+        .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 3px; transition: width 0.5s ease; }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="login-page" class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-md">
+        <div class="glass-card p-8 shadow-xl">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fas fa-brain text-white text-3xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold tracking-tight">ArrcForce AI</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Enterprise Voice Intelligence Platform</p>
+            </div>
+            <form id="loginForm" class="space-y-5">
+                <div><label class="block text-sm font-semibold mb-2">Email</label><input type="email" id="email" class="input-modern" placeholder="admin@arrcforce.com" value="admin@arrcforce.com"></div>
+                <div><label class="block text-sm font-semibold mb-2">Password</label><input type="password" id="password" class="input-modern" placeholder="••••••••" value="enterprise123"></div>
+                <button type="submit" class="w-full btn-primary py-3 text-base">Access Dashboard →</button>
+                <p class="text-center text-xs text-gray-400">Demo: admin@arrcforce.com / enterprise123</p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" class="hidden">
+    <!-- Navbar with Toggle -->
+    <nav class="sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-6 py-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line text-white text-lg"></i></div>
+                <span class="text-xl font-bold tracking-tight">ArrcForce<span class="text-blue-600">AI</span></span>
+                <span class="hidden lg:inline-block text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">Enterprise v3.0</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <i class="fas fa-sun text-yellow-500 dark:hidden text-xl"></i>
+                    <i class="fas fa-moon hidden dark:inline-block text-gray-300 text-xl"></i>
+                </button>
+                <div class="relative">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="toggleUserMenu()">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">RK</div>
+                        <div class="hidden md:block"><p class="text-sm font-semibold">Rajesh Kumar</p><p class="text-xs text-gray-400">Enterprise Admin</p></div>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                    </div>
+                    <div id="userMenu" class="absolute right-0 mt-3 w-64 glass-card rounded-xl shadow-xl hidden z-50 p-2">
+                        <div class="p-3 border-b border-gray-200 dark:border-gray-700"><p class="font-bold">Rajesh Kumar</p><p class="text-xs text-gray-500">admin@arrcforce.com</p></div>
+                        <div class="py-2"><a onclick="logout()" class="flex items-center gap-3 px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg"><i class="fas fa-sign-out-alt"></i>Sign Out</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="hidden lg:block w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 min-h-screen p-5">
+            <div class="space-y-8">
+                <div><h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Navigation</h3>
+                    <ul>
+                        <li><a onclick="showPage('dashboard')" class="sidebar-link active"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
+                        <li><a onclick="showPage('campaigns')" class="sidebar-link"><i class="fas fa-rocket"></i><span>AI Campaigns</span></a></li>
+                        <li><a onclick="showPage('live-calls')" class="sidebar-link"><i class="fas fa-headset"></i><span>Live Calls</span></a></li>
+                        <li><a onclick="showPage('analytics')" class="sidebar-link"><i class="fas fa-chart-line"></i><span>Analytics Hub</span></a></li>
+                        <li><a onclick="showPage('payments')" class="sidebar-link"><i class="fas fa-credit-card"></i><span>Billing & Payments</span></a></li>
+                    </ul>
+                </div>
+                <div class="pt-6 mt-4 border-t border-gray-200 dark:border-gray-800"><div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4"><p class="text-xs font-semibold">AI Credits Remaining</p><p class="text-2xl font-bold text-blue-600">3,845</p><div class="w-full bg-gray-200 rounded-full h-1.5 mt-2"><div class="bg-blue-600 h-1.5 rounded-full w-4/5"></div></div></div></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6 md:p-8 overflow-x-auto">
+            <!-- DASHBOARD PAGE with working Campaign Performance Analysis -->
+            <div id="dashboard-page" class="active-page">
+                <div class="mb-6"><h1 class="text-3xl font-bold tracking-tight">Executive Dashboard</h1><p class="text-gray-500 mt-1">Real-time AI sales intelligence & performance metrics</p></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                    <div class="glass-card p-5"><div class="flex justify-between"><div><p class="text-gray-500 text-sm">Total Conversations</p><p class="text-3xl font-bold mt-1">8,247</p><span class="text-green-500 text-xs">↑ 23.5%</span></div><div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt text-blue-600 text-xl"></i></div></div></div>
+                    <div class="glass-card p-5"><div class="flex justify-between"><div><p class="text-gray-500 text-sm">Pipeline Revenue</p><p class="text-3xl font-bold mt-1">$584.5K</p><span class="text-green-500 text-xs">↑ 18.2%</span></div><div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center"><i class="fas fa-dollar-sign text-emerald-600 text-xl"></i></div></div></div>
+                    <div class="glass-card p-5"><div class="flex justify-between"><div><p class="text-gray-500 text-sm">Active Campaigns</p><p class="text-3xl font-bold mt-1" id="dashCampCount">12</p><span class="text-blue-500 text-xs">Running</span></div><div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center"><i class="fas fa-bullhorn text-purple-600 text-xl"></i></div></div></div>
+                    <div class="glass-card p-5"><div class="flex justify-between"><div><p class="text-gray-500 text-sm">AI Sentiment Score</p><p class="text-3xl font-bold mt-1">4.8/5</p><span class="text-green-500 text-xs">+0.3</span></div><div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center"><i class="fas fa-star text-amber-500 text-xl"></i></div></div></div>
+                </div>
+                
+                <!-- AI Companions Status -->
+                <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                    <div class="glass-card p-6"><h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fas fa-robot text-blue-500"></i> AI Companions Status</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl"><div><div class="flex items-center gap-2"><span class="pulse-dot"></span><span class="font-semibold">SalesBot Pro</span></div><p class="text-xs text-gray-500">Cold Calling Specialist</p></div><div><span class="badge-status badge-active">Active</span><p class="text-sm mt-1">187 calls today</p><p class="text-xs text-green-600">84% success</p></div></div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl"><div><div class="flex items-center gap-2"><span class="pulse-dot"></span><span class="font-semibold">ConnectAI</span></div><p class="text-xs text-gray-500">Follow-up Expert</p></div><div><span class="badge-status badge-active">Active</span><p class="text-sm mt-1">224 calls today</p><p class="text-xs text-green-600">76% success</p></div></div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl"><div><div><span class="font-semibold">GrowthAgent</span></div><p class="text-xs text-gray-500">Upsell Specialist</p></div><div><span class="badge-status bg-gray-200">Standby</span><p class="text-sm mt-1">92 calls today</p><p class="text-xs text-blue-600">92% success</p></div></div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-6"><h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fas fa-chart-simple text-green-500"></i> Campaign Performance Analysis</h3>
+                        <div id="campaignPerformanceList" class="space-y-3"></div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity & Top Agents -->
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div class="glass-card p-6"><h3 class="font-bold text-lg mb-3">Recent Campaign Activity</h3><div class="space-y-3" id="recentActivityList"></div></div>
+                    <div class="glass-card p-6"><h3 class="font-bold text-lg mb-3">Top Performing AI Agents</h3><div class="space-y-3"><div class="flex justify-between items-center"><span><i class="fas fa-trophy text-yellow-500 mr-2"></i>Emma (Female AI)</span><div><span class="font-bold">94% Success Rate</span><div class="w-32 bg-gray-200 rounded-full h-1.5 inline-block ml-2"><div class="bg-green-500 h-1.5 rounded-full" style="width:94%"></div></div></div></div><div class="flex justify-between items-center"><span><i class="fas fa-microphone-alt text-blue-500 mr-2"></i>James (Male AI)</span><div><span class="font-bold">88% Success Rate</span><div class="w-32 bg-gray-200 rounded-full h-1.5 inline-block ml-2"><div class="bg-green-500 h-1.5 rounded-full" style="width:88%"></div></div></div></div><div class="flex justify-between items-center"><span><i class="fas fa-headset text-purple-500 mr-2"></i>Sophia (Warm AI)</span><div><span class="font-bold">82% Success Rate</span><div class="w-32 bg-gray-200 rounded-full h-1.5 inline-block ml-2"><div class="bg-green-500 h-1.5 rounded-full" style="width:82%"></div></div></div></div></div></div>
+                </div>
+            </div>
+
+            <!-- CAMPAIGNS PAGE with Many Campaigns -->
+            <div id="campaigns-page" class="hidden-page">
+                <div class="flex justify-between items-center mb-6">
+                    <div><h1 class="text-3xl font-bold">AI Campaign Management</h1><p class="text-gray-500">Manage and monitor all your voice AI campaigns</p></div>
+                    <button onclick="openCampaignWizard()" class="btn-primary flex items-center gap-2"><i class="fas fa-plus-circle"></i> New Campaign</button>
+                </div>
+                <div id="campaignsGrid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- LIVE CALLS PAGE -->
+            <div id="live-calls-page" class="hidden-page">
+                <h1 class="text-3xl font-bold mb-2">Live Call Studio</h1>
+                <p class="text-gray-500 mb-6">Real-time monitoring with performance metrics</p>
+                <div class="grid lg:grid-cols-4 gap-6 mb-6">
+                    <div class="glass-card p-4 text-center"><p class="text-gray-500">Active Calls</p><p class="text-3xl font-bold text-green-600" id="liveCallCount">6</p></div>
+                    <div class="glass-card p-4 text-center"><p class="text-gray-500">Avg Duration</p><p class="text-3xl font-bold">4:32</p><span class="text-xs text-green-500">↑0:45</span></div>
+                    <div class="glass-card p-4 text-center"><p class="text-gray-500">Success Rate</p><p class="text-3xl font-bold text-blue-600">84%</p><span class="text-xs text-green-500">↑5%</span></div>
+                    <div class="glass-card p-4 text-center"><p class="text-gray-500">Calls Today</p><p class="text-3xl font-bold">842</p><span class="text-xs text-green-500">+147</span></div>
+                </div>
+                <div id="liveCallsList" class="space-y-3"></div>
+                <div class="mt-6 glass-card p-5"><h3 class="font-bold mb-3">Live Calls Performance Metrics</h3><div class="grid grid-cols-3 gap-4 text-center"><div><p class="text-gray-500">Connected</p><p class="text-2xl font-bold text-green-600">687</p></div><div><p class="text-gray-500">Voicemail</p><p class="text-2xl font-bold text-yellow-600">98</p></div><div><p class="text-gray-500">No Answer</p><p class="text-2xl font-bold text-red-600">57</p></div></div></div>
+            </div>
+
+            <!-- ANALYTICS HUB -->
+            <div id="analytics-page" class="hidden-page">
+                <h1 class="text-3xl font-bold mb-2">Analytics Hub</h1>
+                <p class="text-gray-500 mb-6">Campaign, Agent & Live Performance Reports</p>
+                <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                    <div class="glass-card p-6"><h3 class="font-bold text-lg mb-3">📊 Campaign Analytics</h3><div id="campaignAnalyticsChart" class="h-64"></div></div>
+                    <div class="glass-card p-6"><h3 class="font-bold text-lg mb-3">🤖 Agent Performance</h3><div id="agentPerformanceChart" class="h-64"></div></div>
+                </div>
+                <div class="glass-card p-6"><h3 class="font-bold text-lg mb-3">📞 Live Call Metrics (Last 24h)</h3><div id="liveMetricsChart" class="h-72"></div></div>
+            </div>
+
+            <!-- PAYMENTS PAGE -->
+            <div id="payments-page" class="hidden-page">
+                <h1 class="text-3xl font-bold mb-2">Billing & Payments Center</h1>
+                <p class="text-gray-500 mb-6">Multiple payment methods & transaction history</p>
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="glass-card p-6"><h3 class="font-bold text-lg mb-4">💳 Payment Methods</h3><div class="grid grid-cols-3 gap-3 mb-5"><div class="border-2 rounded-xl p-3 text-center method-card" data-method="card"><i class="fab fa-cc-visa text-3xl text-indigo-600"></i><p class="text-sm mt-1">Credit Card</p></div><div class="border-2 rounded-xl p-3 text-center method-card" data-method="paypal"><i class="fab fa-paypal text-3xl text-blue-500"></i><p class="text-sm">PayPal</p></div><div class="border-2 rounded-xl p-3 text-center method-card" data-method="ach"><i class="fas fa-university text-3xl text-purple-600"></i><p class="text-sm">ACH/Wire</p></div></div><div id="paymentDetailPanel" class="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl"><p class="text-gray-400">Select a payment method</p></div><button id="processPaymentBtn" class="btn-primary w-full mt-6 py-3">Pay $4,990.00 →</button></div>
+                        <div class="glass-card p-6"><h3 class="font-bold text-lg mb-4">📜 Payment History</h3><div id="paymentHistory" class="space-y-3"></div></div>
+                    </div>
+                    <div class="glass-card p-6 h-fit"><h3 class="font-bold text-xl">Current Invoice</h3><div class="mt-4 space-y-3"><div class="flex justify-between"><span>ArrcForce AI Enterprise</span><span>$4,990.00</span></div><div class="border-t pt-3 mt-2"><div class="flex justify-between font-bold"><span>Total Due</span><span>$4,990.00</span></div></div><p class="text-xs text-gray-400 mt-3">Due: May 15, 2025 • Auto-renew</p></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3-STEP CAMPAIGN WIZARD MODAL -->
+<div id="campaignWizardModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden overflow-y-auto py-8">
+    <div class="glass-card max-w-3xl w-full mx-4 my-8">
+        <div class="sticky top-0 bg-white dark:bg-gray-900 p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div><h2 class="text-2xl font-bold">🎙️ Create Voice AI Campaign</h2><p class="text-gray-500 text-sm">3-step configuration wizard</p></div>
+            <button onclick="closeCampaignWizard()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        
+        <div class="step-indicator px-6 pt-6">
+            <div class="step" id="step1Indicator">1</div>
+            <div class="step" id="step2Indicator">2</div>
+            <div class="step" id="step3Indicator">3</div>
+        </div>
+        
+        <div class="p-6">
+            <div id="step1" class="form-step active-step">
+                <h3 class="text-lg font-bold mb-4">📋 Basic Campaign Information</h3>
+                <div class="space-y-4">
+                    <div><label class="block text-sm font-semibold mb-2">Campaign Name *</label><input type="text" id="wizCampName" class="input-modern" placeholder="e.g., Q2 Customer Feedback"></div>
+                    <div><label class="block text-sm font-semibold mb-2">Campaign Type *</label><select id="wizCampType" class="select-modern"><option>Promotion</option><option>Survey</option><option>Reminder</option><option>Feedback</option><option>Cold Calling</option><option>Follow-up</option></select></div>
+                    <div><label class="block text-sm font-semibold mb-2">Campaign Description</label><textarea id="wizCampDesc" rows="2" class="textarea-modern" placeholder="Describe the purpose of this campaign..."></textarea></div>
+                </div>
+            </div>
+            
+            <div id="step2" class="form-step">
+                <h3 class="text-lg font-bold mb-4">🎤 Voice & Schedule Configuration</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-semibold mb-2">Language</label><select id="wizLanguage" class="select-modern"><option>English</option><option>Hindi</option><option>Marathi</option><option>Spanish</option></select></div>
+                    <div><label class="block text-sm font-semibold mb-2">AI Voice</label><select id="wizVoice" class="select-modern"><option>Male (Professional)</option><option>Female (Warm & Friendly)</option></select></div>
+                    <div><label class="block text-sm font-semibold mb-2">Start Date</label><input type="date" id="wizStartDate" class="input-modern"></div>
+                    <div><label class="block text-sm font-semibold mb-2">End Date</label><input type="date" id="wizEndDate" class="input-modern"></div>
+                    <div class="md:col-span-2"><label class="block text-sm font-semibold mb-2">Call Time Window</label><div class="flex gap-2"><input type="time" id="wizStartTime" class="input-modern" value="09:00"><span class="self-center">to</span><input type="time" id="wizEndTime" class="input-modern" value="20:00"></div></div>
+                </div>
+            </div>
+            
+            <div id="step3" class="form-step">
+                <h3 class="text-lg font-bold mb-4">⚙️ Advanced Settings & Script</h3>
+                <div class="space-y-4">
+                    <div><label class="block text-sm font-semibold mb-2">Contact List *</label>
+                        <div class="file-upload-area" onclick="document.getElementById('wizContactFile').click()">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2"></i>
+                            <p class="text-sm">Click to upload CSV / Excel file</p>
+                            <input type="file" id="wizContactFile" class="hidden" accept=".csv,.xlsx">
+                        </div>
+                        <div id="wizFileNameDisplay" class="text-xs text-green-600 mt-2"></div>
+                    </div>
+                    <div><label class="block text-sm font-semibold mb-2">AI Call Script</label>
+                        <textarea id="wizScript" rows="3" class="textarea-modern" placeholder="Hi {name}, this is AI agent from ArrcForce AI..."></textarea>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div><label class="block text-sm font-semibold mb-2">Retry Attempts</label><input type="number" id="wizRetry" class="input-modern" value="2"></div>
+                        <div><label class="block text-sm font-semibold mb-2">Call Delay (sec)</label><input type="number" id="wizDelay" class="input-modern" value="5"></div>
+                        <div><label class="block text-sm font-semibold mb-2">Priority</label><select id="wizPriority" class="select-modern"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+                    </div>
+                    <div><label class="flex items-center gap-2"><input type="checkbox" id="wizTransfer" class="w-4 h-4"> <span>Transfer to Human Agent on Request</span></label></div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between mt-8 pt-4 border-t">
+                <button type="button" id="prevBtn" class="btn-secondary" onclick="changeStep(-1)" disabled><i class="fas fa-arrow-left mr-2"></i>Previous</button>
+                <button type="button" id="nextBtn" class="btn-primary" onclick="changeStep(1)">Next <i class="fas fa-arrow-right ml-2"></i></button>
+                <button type="button" id="saveBtn" class="btn-primary" onclick="saveCampaignWizard()" style="display:none"><i class="fas fa-save mr-2"></i>Save Campaign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    
+    // MANY CAMPAIGNS with complete data
+    let campaigns = [
+        { id: 1, name: "Enterprise SaaS Outreach", voice: "Emma", budget: 45000, leadsCount: 532, status: "Active", type: "Cold Calling", performance: 84, calls: 342, connected: 287, revenue: "$42,500" },
+        { id: 2, name: "Q2 Retention Flow", voice: "Sophia", budget: 28000, leadsCount: 310, status: "Active", type: "Retention", performance: 72, calls: 198, connected: 142, revenue: "$28,300" },
+        { id: 3, name: "Upsell Accelerator", voice: "James", budget: 35000, leadsCount: 248, status: "Active", type: "Upsell", performance: 91, calls: 267, connected: 243, revenue: "$67,200" },
+        { id: 4, name: "Cold Calling Blast", voice: "Emma", budget: 22000, leadsCount: 387, status: "Active", type: "Cold Calling", performance: 67, calls: 423, connected: 283, revenue: "$23,500" },
+        { id: 5, name: "Customer Feedback Survey", voice: "Sophia", budget: 15000, leadsCount: 456, status: "Active", type: "Survey", performance: 89, calls: 456, connected: 406, revenue: "$0" },
+        { id: 6, name: "Appointment Setter", voice: "James", budget: 32000, leadsCount: 289, status: "Active", type: "Appointment", performance: 78, calls: 289, connected: 225, revenue: "$34,200" },
+        { id: 7, name: "Black Friday Promo", voice: "Emma", budget: 50000, leadsCount: 890, status: "Active", type: "Promotion", performance: 94, calls: 678, connected: 637, revenue: "$124,500" },
+        { id: 8, name: "Customer Win-Back", voice: "Sophia", budget: 18000, leadsCount: 245, status: "Paused", type: "Retention", performance: 62, calls: 145, connected: 90, revenue: "$12,800" },
+        { id: 9, name: "Product Launch Alert", voice: "James", budget: 42000, leadsCount: 567, status: "Active", type: "Promotion", performance: 86, calls: 512, connected: 440, revenue: "$89,300" },
+        { id: 10, name: "Annual Renewal Campaign", voice: "Emma", budget: 38000, leadsCount: 423, status: "Active", type: "Reminder", performance: 79, calls: 389, connected: 307, revenue: "$156,700" },
+        { id: 11, name: "Webinar Invitation", voice: "Sophia", budget: 12000, leadsCount: 890, status: "Active", type: "Survey", performance: 73, calls: 745, connected: 544, revenue: "$0" },
+        { id: 12, name: "Cross-sell Campaign", voice: "James", budget: 29000, leadsCount: 312, status: "Draft", type: "Upsell", performance: 0, calls: 0, connected: 0, revenue: "$0" }
+    ];
+    
+    let liveCalls = [
+        { id: 1, customer: "TechCorp Inc", phone: "+1 (415) 555-0123", agent: "Emma", duration: "03:24", sentiment: "Positive" },
+        { id: 2, customer: "FinServe Solutions", phone: "+1 (212) 555-0198", agent: "James", duration: "02:15", sentiment: "Negotiating" },
+        { id: 3, customer: "CloudScale LLC", phone: "+1 (650) 555-0789", agent: "Sophia", duration: "04:52", sentiment: "Very Positive" },
+        { id: 4, customer: "DataStream AI", phone: "+1 (512) 555-0345", agent: "Emma", duration: "01:48", sentiment: "Neutral" },
+        { id: 5, customer: "Innovate Solutions", phone: "+1 (303) 555-0912", agent: "James", duration: "05:12", sentiment: "Positive" },
+        { id: 6, customer: "NextGen Systems", phone: "+1 (617) 555-0456", agent: "Sophia", duration: "02:34", sentiment: "Very Positive" }
+    ];
+    
+    let paymentHistory = [
+        { id: 1, date: "Apr 15, 2025", amount: "$4,990.00", method: "Visa ****4242", status: "Paid" },
+        { id: 2, date: "Mar 15, 2025", amount: "$4,990.00", method: "Visa ****4242", status: "Paid" },
+        { id: 3, date: "Feb 15, 2025", amount: "$4,990.00", method: "PayPal", status: "Paid" },
+        { id: 4, date: "Jan 15, 2025", amount: "$4,490.00", method: "ACH Transfer", status: "Paid" },
+        { id: 5, date: "Dec 15, 2024", amount: "$4,490.00", method: "Mastercard", status: "Paid" }
+    ];
+    
+    function renderCampaignPerformance() {
+        const container = document.getElementById('campaignPerformanceList');
+        if(!container) return;
+        const activeCampaigns = campaigns.filter(c => c.status === 'Active').slice(0, 5);
+        container.innerHTML = activeCampaigns.map(c => `
+            <div><div class="flex justify-between text-sm"><span class="font-medium">${c.name}</span><span class="font-semibold">${c.performance}%</span></div><div class="progress-bar mt-1"><div class="progress-fill" style="width: ${c.performance}%"></div></div><p class="text-xs text-gray-500 mt-1">${c.calls} calls • ${c.connected} connected</p></div>
+        `).join('');
+        if(activeCampaigns.length === 0) container.innerHTML = '<p class="text-gray-500">No active campaigns</p>';
+    }
+    
+    function renderRecentActivity() {
+        const container = document.getElementById('recentActivityList');
+        if(!container) return;
+        const activities = [
+            { name: "Black Friday Promo", time: "2 min ago", action: "+24 new leads", trend: "↑" },
+            { name: "Enterprise SaaS Outreach", time: "15 min ago", action: "18 calls completed", trend: "↑" },
+            { name: "Upsell Accelerator", time: "1 hour ago", action: "12 conversions", trend: "↑" },
+            { name: "Product Launch Alert", time: "3 hours ago", action: "45 calls scheduled", trend: "Live" },
+            { name: "Customer Feedback Survey", time: "5 hours ago", action: "32 responses", trend: "↑" }
+        ];
+        container.innerHTML = activities.map(a => `<div class="flex justify-between items-center p-2 border-b"><div><p class="font-medium">${a.name}</p><p class="text-xs text-gray-500">${a.time} • ${a.action}</p></div><span class="text-green-500">${a.trend}</span></div>`).join('');
+    }
+    
+    function renderCampaigns() {
+        const container = document.getElementById('campaignsGrid');
+        if(!container) return;
+        container.innerHTML = campaigns.map(c => `<div class="glass-card p-5"><div class="flex justify-between"><div><span class="badge-status ${c.status === 'Active' ? 'badge-active' : c.status === 'Paused' ? 'badge-paused' : 'badge-draft'}">${c.status}</span><h3 class="font-bold text-xl mt-2">${c.name}</h3><p class="text-sm text-gray-500">${c.type} • ${c.voice}</p></div><i class="fas fa-chart-line text-blue-400 text-2xl"></i></div><div class="grid grid-cols-3 gap-3 my-4"><div class="text-center"><div class="font-bold">${c.leadsCount}</div><div class="text-xs">Leads</div></div><div class="text-center"><div class="font-bold">${c.performance}%</div><div class="text-xs">Success</div></div><div class="text-center"><div class="font-bold">${c.revenue || '$0'}</div><div class="text-xs">Revenue</div></div></div><div class="text-xs text-gray-500 mb-3">${c.calls || 0} calls • ${c.connected || 0} connected</div><button onclick="deleteCampaign(${c.id})" class="w-full btn-secondary text-sm py-2">Delete</button></div>`).join('');
+        document.getElementById('dashCampCount') && (document.getElementById('dashCampCount').innerText = campaigns.filter(c => c.status === 'Active').length);
+    }
+    
+    function deleteCampaign(id) { campaigns = campaigns.filter(c => c.id !== id); renderCampaigns(); renderCampaignPerformance(); showToast('Campaign deleted'); }
+    
+    function saveCampaignWizard() {
+        const name = document.getElementById('wizCampName').value;
+        if(!name) { showToast('Campaign name required', true); return; }
+        const file = document.getElementById('wizContactFile').files[0];
+        if(!file) { showToast('Please upload contact list', true); return; }
+        
+        const newCamp = {
+            id: Date.now(),
+            name: name,
+            type: document.getElementById('wizCampType').value,
+            description: document.getElementById('wizCampDesc').value,
+            language: document.getElementById('wizLanguage').value,
+            voice: document.getElementById('wizVoice').value,
+            startDate: document.getElementById('wizStartDate').value,
+            endDate: document.getElementById('wizEndDate').value,
+            script: document.getElementById('wizScript').value,
+            retryCount: document.getElementById('wizRetry').value,
+            priority: document.getElementById('wizPriority').value,
+            transferToHuman: document.getElementById('wizTransfer').checked,
+            budget: 25000,
+            leadsCount: Math.floor(Math.random() * 500) + 100,
+            status: 'Active',
+            performance: Math.floor(Math.random() * 40) + 60,
+            calls: Math.floor(Math.random() * 300) + 50,
+            connected: Math.floor(Math.random() * 200) + 30,
+            revenue: `$${Math.floor(Math.random() * 50000) + 5000}`
+        };
+        campaigns.unshift(newCamp);
+        renderCampaigns();
+        renderCampaignPerformance();
+        closeCampaignWizard();
+        showToast('✅ Campaign created successfully!');
+        document.getElementById('wizFileNameDisplay').innerHTML = '';
+    }
+    
+    document.getElementById('wizContactFile')?.addEventListener('change', function(e) {
+        if(e.target.files[0]) document.getElementById('wizFileNameDisplay').innerHTML = `<i class="fas fa-check-circle"></i> ${e.target.files[0].name}`;
+    });
+    
+    function renderLiveCalls() { 
+        const container = document.getElementById('liveCallsList'); 
+        if(container) container.innerHTML = liveCalls.map(c => `<div class="glass-card p-4 flex justify-between"><div><div class="flex gap-2"><span class="pulse-dot"></span><span class="font-semibold">${c.customer}</span><span class="text-xs text-gray-500">${c.phone}</span></div><p class="text-sm text-gray-500">Agent: ${c.agent} • Duration: ${c.duration} • Sentiment: ${c.sentiment}</p></div><span class="badge-status bg-green-100 text-green-700">Live</span></div>`).join('');
+        document.getElementById('liveCallCount') && (document.getElementById('liveCallCount').innerText = liveCalls.length);
+    }
+    
+    function renderPaymentHistory() { 
+        const container = document.getElementById('paymentHistory'); 
+        if(container) container.innerHTML = paymentHistory.map(p => `<div class="flex justify-between p-3 border-b"><div><p class="font-medium">${p.date}</p><p class="text-xs text-gray-500">${p.method}</p></div><div><span class="font-bold">${p.amount}</span><span class="ml-3 text-green-600">${p.status}</span></div></div>`).join('');
+    }
+    
+    function initAnalytics() {
+        if(document.getElementById('campaignAnalyticsChart')) {
+            new ApexCharts(document.querySelector("#campaignAnalyticsChart"), { series: [{ name: "Success Rate", data: campaigns.filter(c => c.status === 'Active').map(c => c.performance) }], chart: { type: 'bar', height: 240, toolbar: { show: false } }, colors: ['#3b82f6'], xaxis: { categories: campaigns.filter(c => c.status === 'Active').map(c => c.name.substring(0, 10)) }, plotOptions: { bar: { borderRadius: 8 } } }).render();
+            new ApexCharts(document.querySelector("#agentPerformanceChart"), { series: [{ name: "Calls Handled", data: [542, 498, 467, 389] }], chart: { type: 'line', height: 240, toolbar: { show: false } }, colors: ['#8b5cf6'], stroke: { width: 3, curve: 'smooth' }, xaxis: { categories: ['Emma AI', 'James AI', 'Sophia AI', 'Michael AI'] } }).render();
+            new ApexCharts(document.querySelector("#liveMetricsChart"), { series: [{ name: "Live Calls per Hour", data: [18, 24, 32, 38, 42, 35, 28, 22] }], chart: { type: 'area', height: 260, toolbar: { show: false } }, colors: ['#10b981'], fill: { gradient: { opacityFrom: 0.6, opacityTo: 0.1 } }, xaxis: { categories: ['9AM', '11AM', '1PM', '3PM', '5PM', '7PM', '9PM', '11PM'] } }).render();
+        }
+    }
+    
+    function changeStep(delta) {
+        document.getElementById(`step${currentStep}`).classList.remove('active-step');
+        currentStep += delta;
+        document.getElementById(`step${currentStep}`).classList.add('active-step');
+        for(let i = 1; i <= 3; i++) {
+            const stepEl = document.getElementById(`step${i}Indicator`);
+            if(i < currentStep) stepEl.classList.add('completed');
+            else if(i === currentStep) stepEl.classList.add('active');
+            else stepEl.classList.remove('active', 'completed');
+        }
+        document.getElementById('prevBtn').disabled = currentStep === 1;
+        if(currentStep === 3) {
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'inline-flex';
+        } else {
+            document.getElementById('nextBtn').style.display = 'inline-flex';
+            document.getElementById('saveBtn').style.display = 'none';
+        }
+    }
+    
+    function showPage(pageId) {
+        const pages = ['dashboard', 'campaigns', 'live-calls', 'analytics', 'payments'];
+        pages.forEach(p => { const el = document.getElementById(`${p}-page`); if(el) { el.classList.add('hidden-page'); el.classList.remove('active-page'); } });
+        document.getElementById(`${pageId}-page`).classList.remove('hidden-page');
+        document.getElementById(`${pageId}-page`).classList.add('active-page');
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        const target = Array.from(document.querySelectorAll('.sidebar-link')).find(l => l.innerText.toLowerCase().includes(pageId.toLowerCase()));
+        if(target) target.classList.add('active');
+        if(pageId === 'analytics') setTimeout(initAnalytics, 100);
+        if(pageId === 'live-calls') renderLiveCalls();
+        if(pageId === 'payments') renderPaymentHistory();
+        if(pageId === 'dashboard') { renderCampaignPerformance(); renderRecentActivity(); }
+    }
+    
+    function openCampaignWizard() { 
+        document.getElementById('campaignWizardModal').classList.remove('hidden');
+        document.getElementById('campaignWizardModal').style.display = 'flex';
+        currentStep = 1;
+        document.getElementById('step1').classList.add('active-step');
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('step3').classList.remove('active-step');
+        document.getElementById('step1Indicator').classList.add('active');
+        document.getElementById('step2Indicator').classList.remove('active', 'completed');
+        document.getElementById('step3Indicator').classList.remove('active', 'completed');
+        document.getElementById('prevBtn').disabled = true;
+        document.getElementById('nextBtn').style.display = 'inline-flex';
+        document.getElementById('saveBtn').style.display = 'none';
+        const today = new Date().toISOString().split('T')[0];
+        const nextWeek = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
+        document.getElementById('wizStartDate').value = today;
+        document.getElementById('wizEndDate').value = nextWeek;
+    }
+    
+    function closeCampaignWizard() { document.getElementById('campaignWizardModal').classList.add('hidden'); document.getElementById('campaignWizardModal').style.display = 'none'; }
+    function showToast(msg, isError = false) { const toast = document.createElement('div'); toast.className = 'toast-notify'; toast.style.background = isError ? '#ef4444' : '#10b981'; toast.innerText = msg; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+    function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
+    function logout() { document.getElementById('main-app').classList.add('hidden'); document.getElementById('login-page').style.display = 'flex'; }
+    
+    document.getElementById('loginForm')?.addEventListener('submit', (e) => { e.preventDefault(); if(document.getElementById('email').value === 'admin@arrcforce.com' && document.getElementById('password').value === 'enterprise123') { document.getElementById('login-page').style.display = 'none'; document.getElementById('main-app').classList.remove('hidden'); renderCampaigns(); renderLiveCalls(); renderPaymentHistory(); renderCampaignPerformance(); renderRecentActivity(); showPage('dashboard'); } else alert('Invalid credentials'); });
+    document.getElementById('themeToggle')?.addEventListener('click', () => { document.body.classList.toggle('dark'); localStorage.theme = document.body.classList.contains('dark') ? 'dark' : 'light'; });
+    if(localStorage.theme === 'dark') document.body.classList.add('dark');
+    document.querySelectorAll('.method-card').forEach(card => { card.addEventListener('click', function() { const method = this.dataset.method; const panel = document.getElementById('paymentDetailPanel'); if(method === 'card') panel.innerHTML = `<div><input class="input-modern w-full p-3 mb-2" placeholder="Card Number"><div class="flex gap-2"><input class="input-modern w-1/2 p-3" placeholder="MM/YY"><input class="input-modern w-1/2 p-3" placeholder="CVC"></div></div>`; else panel.innerHTML = `<div><p>Redirecting to ${method} gateway</p></div>`; }); });
+    document.getElementById('processPaymentBtn')?.addEventListener('click', () => { showToast('Payment processed!'); paymentHistory.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), amount: "$4,990.00", method: "New Card", status: "Paid" }); renderPaymentHistory(); });
+    
+    document.addEventListener('click', (e) => { const menu = document.getElementById('userMenu'); const btn = document.querySelector('.profile-avatar')?.closest('.flex'); if(menu && !menu.contains(e.target) && !btn?.contains(e.target)) menu.classList.add('hidden'); });
+    window.showPage = showPage; window.openCampaignWizard = openCampaignWizard; window.closeCampaignWizard = closeCampaignWizard; window.deleteCampaign = deleteCampaign; window.changeStep = changeStep; window.saveCampaignWizard = saveCampaignWizard; window.toggleUserMenu = toggleUserMenu; window.logout = logout;
+    renderCampaigns(); renderLiveCalls(); renderPaymentHistory(); renderCampaignPerformance(); renderRecentActivity();
+</script>
+</body>
+</html>
